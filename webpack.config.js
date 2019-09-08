@@ -21,6 +21,7 @@ module.exports = {
       // AND `<script>` blocks in `.vue` files
       {
         test: /\.js$/,
+        exclude: /node_modules/,
         loader: 'babel-loader'
       },
       // this will apply to both plain `.css` files
@@ -48,7 +49,7 @@ module.exports = {
   },
   resolve: {
     alias: {
-      'vue$': 'vue/dist/vue.runtime.js'
+      vue$: 'vue/dist/vue.runtime.js'
     }
   },
   plugins: [
