@@ -8,6 +8,7 @@ module.exports = {
     path: path.join(__dirname, 'dist'),
     filename: 'fusionauth-lock.umd.js',
     library: 'FusionAuthLock',
+    libraryExport: 'default',
     libraryTarget: 'window'
   },
   module: {
