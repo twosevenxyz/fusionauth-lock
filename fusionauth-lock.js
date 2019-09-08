@@ -124,12 +124,15 @@ class FusionAuth {
     try {
       const response = await axios.post(`${loginUri}/login`, {
         username,
-        password
+        password,
+        scope: this.opts.auth.scope
       })
       const { data } = response
-      const { access_token: accessToken, id_token: idToken } = data
+      const { access_token: accessToken, id_token: idToken, refresh_token: refreshToken } = data
       const result = {
-        token: accessToken
+        token: accessToken,
+        idToken,
+        refreshToken
       }
       this.emit('authenticated', result)
     } catch (e) {
@@ -145,15 +148,23 @@ class FusionAuth {
     finalToken = idToken || accessToken
 
     try {
+      let device
+      if (this.opts.auth.scope.includes('offline_access')) {
+        // We need to get a refresh token
+        // To do so, we need to add the 'device' parameter
+        device = this.opts.auth.device
+      }
       const response = await axios.post(`${loginUri}/social-login`, {
         provider,
         token: finalToken,
-        clientId: providerClientId
+        clientId: providerClientId,
+        device
       })
       const { data: loginData } = response
-      const { token } = loginData
+      const { token, refreshToken } = loginData
       const result = {
-        token
+        token,
+        refreshToken
       }
       this.emit('authenticated', result)
     } catch (e) {
