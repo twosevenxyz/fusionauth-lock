@@ -1,0 +1,3 @@
+[submodule "login-component"]
+	path = login-component
+	url = git@github.com:twosevenxyz/login-component

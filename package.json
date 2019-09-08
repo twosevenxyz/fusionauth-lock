@@ -1,0 +1,45 @@
+{
+  "name": "fusionauth-lock",
+  "version": "1.0.0",
+  "description": "",
+  "main": "fusionauth-lock.js",
+  "scripts": {
+    "build": "webpack",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.22",
+    "@fortawesome/free-solid-svg-icons": "^5.10.2",
+    "@fortawesome/vue-fontawesome": "^0.1.7",
+    "axios": "^0.19.0",
+    "bulma": "^0.7.5",
+    "emittery": "^0.4.1",
+    "vue": "^2.6.10",
+    "vue-authenticate": "^1.4.1",
+    "vue-axios": "^2.1.4"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.6.0",
+    "@babel/core": "^7.6.0",
+    "@babel/preset-env": "^7.6.0",
+    "babel-loader": "^8.0.6",
+    "css-loader": "^3.2.0",
+    "eslint": "^6.3.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "eslint-plugin-vue": "^5.2.3",
+    "file-loader": "^4.2.0",
+    "node-sass": "^4.12.0",
+    "sass-loader": "^8.0.0",
+    "url-loader": "^2.1.0",
+    "vue-loader": "^15.7.1",
+    "vue-template-compiler": "^2.6.10",
+    "webpack": "^4.39.3",
+    "webpack-cli": "^3.3.8"
+  }
+}
