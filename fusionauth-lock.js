@@ -42,26 +42,6 @@ class FusionAuth {
     }
     this.control = control
     this.vue = new Vue({
-      render: h => {
-        return h(LoginComponent, {
-          props: {
-            ...opts.theme,
-            social,
-            show: control.show,
-            error: control.error,
-            info: control.info,
-            ref: 'login',
-            tos: links.tos,
-            privacyPolicy: links.privacyPolicy
-          },
-          on: {
-            'update:show': 'onShowChange',
-            submit: 'onSubmit',
-            'social-login': 'onSocialLogin'
-          }
-
-        })
-      },
       data: {
         theme: opts.theme,
         social,
@@ -102,6 +82,27 @@ class FusionAuth {
           await self.socialLogin(data)
           this.control.show = false
         }
+      },
+      render (h) {
+        debugger
+        return h(LoginComponent, {
+          props: {
+            ...opts.theme,
+            social,
+            show: control.show,
+            error: control.error,
+            info: control.info,
+            ref: 'login',
+            tos: links.tos,
+            privacyPolicy: links.privacyPolicy
+          },
+          on: {
+            'update:show': this.onShowChange,
+            submit: this.onSubmit,
+            'social-login': this.onSocialLogin
+          }
+
+        })
       }
     }).$mount(mount.querySelector('#__fusionauth__'))
     this.vue.$on('modal-event', function (isShowing) { this.emit('modal-event', isShowing) }.bind(this))
