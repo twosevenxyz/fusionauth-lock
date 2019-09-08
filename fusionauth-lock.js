@@ -84,7 +84,6 @@ class FusionAuth {
         }
       },
       render (h) {
-        debugger
         return h(LoginComponent, {
           props: {
             ...opts.theme,
