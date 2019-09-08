@@ -42,17 +42,26 @@ class FusionAuth {
     }
     this.control = control
     this.vue = new Vue({
-      template: `
-        <LoginComponent
-            v-bind="theme"
-            :social="social"
-            :show.sync="control.show" :error="control.error" :info="control.info"
-            :tos="links.tos"
-            :privacyPolicy="links.privacyPolicy"
-            ref="login"
-            @update:show="onShowChange"
-            @submit="onSubmit"
-            @social-login="onSocialLogin"/>`,
+      render: h => {
+        return h(LoginComponent, {
+          props: {
+            ...opts.theme,
+            social,
+            show: control.show,
+            error: control.error,
+            info: control.info,
+            ref: 'login',
+            tos: links.tos,
+            privacyPolicy: links.privacyPolicy
+          },
+          on: {
+            'update:show': 'onShowChange',
+            submit: 'onSubmit',
+            'social-login': 'onSocialLogin'
+          }
+
+        })
+      },
       data: {
         theme: opts.theme,
         social,
@@ -61,6 +70,7 @@ class FusionAuth {
       },
       methods: {
         onShowChange (isShowing) {
+          this.control.show = isShowing
           this.$emit('modal-event', isShowing)
         },
         async onSubmit (data) {
