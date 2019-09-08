@@ -78,6 +78,10 @@ class FusionAuth {
           }
         },
         async onSocialLogin (data) {
+          if (data.error) {
+            this.control.error = data.error
+            return
+          }
           await self.socialLogin(data)
           this.control.show = false
         }
@@ -134,11 +138,6 @@ class FusionAuth {
   }
 
   async socialLogin (data) {
-    if (data.error) {
-      this.control.error = data.error
-      return
-    }
-
     let finalToken
     const { provider, access_token: accessToken, id_token: idToken } = data
     const { loginUri } = this
