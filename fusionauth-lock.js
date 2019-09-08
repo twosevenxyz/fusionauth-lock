@@ -6,11 +6,11 @@ import Emittery from 'emittery'
 
 Vue.component('LoginComponent', LoginComponent)
 
-const errors = {
-  email_verification: 'Your email has not been verified. Please verify your email before attempting to log in.',
-  bad_request: 'The login request was malformed. Please contact the website admins.',
-  bad_credentails: 'Invalid username or password'
-}
+// const errors = {
+//   email_verification: 'Your email has not been verified. Please verify your email before attempting to log in.',
+//   bad_request: 'The login request was malformed. Please contact the website admins.',
+//   bad_credentails: 'Invalid username or password'
+// }
 
 class FusionAuth {
   constructor (clientId, domain, opts = {}, mount = document.body) {
@@ -65,7 +65,6 @@ class FusionAuth {
                 this.control.show = false
                 break
               case 1:
-                debugger
                 await self.register(username, password)
                 break
               case 2:
@@ -181,7 +180,6 @@ class FusionAuth {
       const response = await axios.post(`${loginUri}/forgot-password`, {
         email
       })
-      debugger
       this.control.info = response.data
       this.vue.$refs.login.currentTab = 0
     } catch (e) {
