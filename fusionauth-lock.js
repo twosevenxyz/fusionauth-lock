@@ -91,10 +91,10 @@ class FusionAuth {
             show: control.show,
             error: control.error,
             info: control.info,
-            ref: 'login',
             tos: links.tos,
             privacyPolicy: links.privacyPolicy
           },
+          ref: 'login',
           on: {
             'update:show': this.onShowChange,
             submit: this.onSubmit,
