@@ -29,7 +29,7 @@ class FusionAuth {
     // Create the div under which the lock is going to live
     const el = document.createElement('div')
     el.id = '__fusionauth-login__'
-    el.innerHTML = `<div id="__fusionauth__"></div>`
+    el.innerHTML = '<div id="__fusionauth__"></div>'
     this.el = el
     mount.appendChild(el)
     // Regardless of what the constructor tells us, we set show to false
@@ -115,6 +115,7 @@ class FusionAuth {
     this.control.info = ''
     this.control.show = true
   }
+
   close () {
     this.control.show = false
   }
@@ -171,6 +172,7 @@ class FusionAuth {
       throw new Error(e.response.data)
     }
   }
+
   async register (email, password) {
     const { loginUri } = this
     try {
@@ -184,6 +186,7 @@ class FusionAuth {
       this.control.error = e.response.data
     }
   }
+
   async forgotPassword (email) {
     const { loginUri } = this
     try {
