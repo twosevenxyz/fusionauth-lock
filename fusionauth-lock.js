@@ -43,10 +43,7 @@ class FusionAuth {
     this.control = control
     this.vue = new Vue({
       data: {
-        theme: opts.theme,
-        social,
-        control,
-        links
+        control
       },
       methods: {
         onShowChange (isShowing) {
@@ -74,7 +71,7 @@ class FusionAuth {
           } catch (e) {
             this.control.error = e.message
           } finally {
-            this.$refs.login.isSubmitting = false
+            this.control.isSubmitting = false
           }
         },
         async onSocialLogin (data) {
@@ -89,13 +86,12 @@ class FusionAuth {
       render (h) {
         return h(LoginComponent, {
           props: {
-            ...opts.theme,
-            social,
+            ...opts,
+            initialized: control.initialized,
+            isSubmitting: control.isSubmitting,
             show: control.show,
             error: control.error,
-            info: control.info,
-            tos: links.tos,
-            privacyPolicy: links.privacyPolicy
+            info: control.info
           },
           ref: 'login',
           on: {
