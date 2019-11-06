@@ -1,5 +1,6 @@
 import axios from 'axios'
 import LoginComponent from './login-component/src/components/LoginComponent.vue'
+import { tabs as LoginTabs } from './login-component/src/js/constants'
 
 import Vue from 'vue'
 import Emittery from 'emittery'
@@ -16,7 +17,11 @@ class FusionAuth {
   constructor (clientId, domain, opts = {}, mount = document.body) {
     const self = this
 
-    const { social = {}, loginUri, links = {} } = opts
+    const { loginUri, storage = {} } = opts
+    const { prefix = 'generic-login', tokens = 'tokens', profile = 'profile' } = storage
+    this.tokensKey = `${prefix}:${tokens}`
+    this.profileKey = `${prefix}:${profile}`
+
     this.loginUri = loginUri
 
     // Emittery for events
@@ -56,15 +61,15 @@ class FusionAuth {
           const { currentTab, username, password, forgotEmail } = data
           try {
             switch (currentTab) {
-              case 0:
+              case LoginTabs.LOGIN:
                 await self.login(username, password)
                 // Close the modal
                 this.control.show = false
                 break
-              case 1:
+              case LoginTabs.SIGNUP:
                 await self.register(username, password)
                 break
-              case 2:
+              case LoginTabs.FORGOT_PASSWORD:
                 await self.forgotPassword(forgotEmail)
                 break
             }
@@ -87,11 +92,7 @@ class FusionAuth {
         return h(LoginComponent, {
           props: {
             ...opts,
-            initialized: control.initialized,
-            isSubmitting: control.isSubmitting,
-            show: control.show,
-            error: control.error,
-            info: control.info
+            ...control
           },
           ref: 'login',
           on: {
@@ -107,9 +108,22 @@ class FusionAuth {
   }
 
   open () {
+    const { tokensKey, profileKey } = this
+
     this.control.error = ''
     this.control.info = ''
+    this.control.initialized = false
     this.control.show = true
+
+    // Check cookies
+    const userStr = localStorage.getItem(profileKey)
+    try {
+      const user = JSON.parse(userStr)
+      this.control.loggedInId = user
+      // TODO: Add logic for tokensKey handling?
+    } catch (e) {
+    }
+    this.control.initialized = true
   }
 
   close () {
@@ -133,16 +147,19 @@ class FusionAuth {
       }
       this.emit('authenticated', result)
     } catch (e) {
-      throw new Error(e.response.data)
+      if (e.response) {
+        throw new Error(e.response.data)
+      } else {
+        throw e
+      }
     }
   }
 
   async socialLogin (data) {
-    let finalToken
     const { provider, access_token: accessToken, id_token: idToken } = data
     const { loginUri } = this
     const providerClientId = this.opts.social.providers[provider].clientId
-    finalToken = idToken || accessToken
+    const finalToken = idToken || accessToken
 
     try {
       let device
@@ -177,7 +194,7 @@ class FusionAuth {
         password
       })
       this.control.info = response.data
-      this.vue.$refs.login.currentTab = 0
+      this.vue.$refs.login.currentTab = LoginTabs.LOGIN
     } catch (e) {
       this.control.error = e.response.data
     }
@@ -190,7 +207,7 @@ class FusionAuth {
         email
       })
       this.control.info = response.data
-      this.vue.$refs.login.currentTab = 0
+      this.vue.$refs.login.currentTab = LoginTabs.LOGIN
     } catch (e) {
       this.control.error = e.response.data
     }
