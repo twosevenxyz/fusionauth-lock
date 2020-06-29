@@ -17,19 +17,16 @@ class FusionAuth {
   constructor (clientId, domain, opts = {}, mount = document.body) {
     const self = this
 
-    const { loginUri, storage = {} } = opts
-    const { prefix = 'generic-login', tokens = 'tokens', profile = 'profile' } = storage
+    const { loginUri, storage = window.localStorage, keys = {} } = opts
+    const { prefix = 'generic-login', tokens = 'tokens', profile = 'profile', lastLogin = 'last-login' } = keys
     this.tokensKey = `${prefix}:${tokens}`
     this.profileKey = `${prefix}:${profile}`
+    this.lastLoginCredentialsKey = `${prefix}:${lastLogin}`
 
+    this.storage = storage
     this.loginUri = loginUri
 
-    // Emittery for events
-    const emitter = new Emittery()
-    const emitterAPI = ['on', 'off', 'once', 'onAny', 'emit', 'emitSerial']
-    emitterAPI.forEach((api) => {
-      this[api] = emitter[api].bind(emitter)
-    })
+    new Emittery().bindMethods(this)
 
     // Create the div under which the lock is going to live
     const el = document.createElement('div')
@@ -43,7 +40,10 @@ class FusionAuth {
     const control = {
       show: false,
       error: '',
-      info: ''
+      info: '',
+      isSubmitting: false,
+      loggedInId: undefined,
+      initialized: false
     }
     this.control = control
     this.vue = new Vue({
@@ -55,24 +55,16 @@ class FusionAuth {
           this.control.show = isShowing
           this.$emit('modal-event', isShowing)
         },
-        async onSubmit (data) {
+        async commonSubmit (data, executor) {
+          debugger // eslint-disable-line
           this.control.error = ''
           this.control.info = ''
-          const { currentTab, username, password, forgotEmail } = data
+          this.control.isSubmitting = true
           try {
-            switch (currentTab) {
-              case LoginTabs.LOGIN:
-                await self.login(username, password)
-                // Close the modal
-                this.control.show = false
-                break
-              case LoginTabs.SIGNUP:
-                await self.register(username, password)
-                break
-              case LoginTabs.FORGOT_PASSWORD:
-                await self.forgotPassword(forgotEmail)
-                break
-            }
+            await new Promise(resolve => {
+              setTimeout(resolve, 300)
+            })
+            await executor(data)
           } catch (e) {
             this.control.error = e.message
           } finally {
@@ -97,8 +89,11 @@ class FusionAuth {
           ref: 'login',
           on: {
             'update:show': this.onShowChange,
-            submit: this.onSubmit,
-            'social-login': this.onSocialLogin
+            login: data => this.commonSubmit(data, self.login.bind(self)),
+            signup: data => this.commonSubmit(data, self.register.bind(self)),
+            'forgot-password': data => this.commonSubmit(data, self.forgotPassword.bind(self)),
+            'social-login': this.onSocialLogin,
+            'last-login-login': self.lastLoginLogin.bind(self)
           }
 
         })
@@ -107,45 +102,60 @@ class FusionAuth {
     this.vue.$on('modal-event', function (isShowing) { this.emit('modal-event', isShowing) }.bind(this))
   }
 
-  open () {
-    const { tokensKey, profileKey } = this
+  async open () {
+    const { lastLoginCredentialsKey, loginUri, storage, control } = this
 
-    this.control.error = ''
-    this.control.info = ''
-    this.control.initialized = false
-    this.control.show = true
+    control.error = ''
+    control.info = ''
+    control.initialized = false
+    control.show = true
 
-    // Check cookies
-    const userStr = localStorage.getItem(profileKey)
-    try {
-      const user = JSON.parse(userStr)
-      this.control.loggedInId = user
-      // TODO: Add logic for tokensKey handling?
-    } catch (e) {
+    // Check lastLoginCredentials
+    if (!this.control.loggedInId) {
+      try {
+        const lastLoginCredentialsStr = storage.getItem(lastLoginCredentialsKey)
+        const lastLoginCredentials = JSON.parse(lastLoginCredentialsStr)
+        const { type, data } = lastLoginCredentials
+        const response = await axios.get(`${loginUri}/last-login-info`, {
+          params: {
+            lastLoginCredentials: data
+          }
+        })
+        const { data: { username, provider } } = response
+        this.control.loggedInId = {
+          email: username,
+          type,
+          provider
+        }
+      } catch (e) {
+      }
     }
-    this.control.initialized = true
+    control.initialized = true
   }
 
   close () {
     this.control.show = false
   }
 
-  async login (username, password) {
-    const { loginUri } = this
+  async login ({ username, password, lastLoginCredentials }) {
+    const { loginUri, storage } = this
     try {
       const response = await axios.post(`${loginUri}/login`, {
         username,
         password,
+        lastLoginCredentials,
         scope: this.opts.auth.scope
       })
       const { data } = response
-      const { access_token: accessToken, id_token: idToken, refresh_token: refreshToken } = data
+      const { access_token: accessToken, id_token: idToken, refresh_token: refreshToken, lastLoginCredentials: newLastLoginCredentials } = data
       const result = {
         token: accessToken,
         idToken,
         refreshToken
       }
+      storage.setItem(this.lastLoginCredentialsKey, JSON.stringify(newLastLoginCredentials))
       this.emit('authenticated', result)
+      this.close()
     } catch (e) {
       if (e.response) {
         throw new Error(e.response.data)
@@ -186,11 +196,24 @@ class FusionAuth {
     }
   }
 
-  async register (email, password) {
+  async lastLoginLogin () {
+    const { storage, lastLoginCredentialsKey } = this
+    const lastLoginCredentialsStr = storage.getItem(lastLoginCredentialsKey)
+    const lastLoginCredentials = JSON.parse(lastLoginCredentialsStr)
+    const { type, data } = lastLoginCredentials
+    switch (type) {
+      case 'email':
+        return this.login({ lastLoginCredentials: data })
+      case 'social':
+        return this.socialLogin({ lastLoginCredentials: data })
+    }
+  }
+
+  async register ({ username, password }) {
     const { loginUri } = this
     try {
       const response = await axios.post(`${loginUri}/register`, {
-        email,
+        email: username,
         password
       })
       this.control.info = response.data
@@ -200,17 +223,23 @@ class FusionAuth {
     }
   }
 
-  async forgotPassword (email) {
+  async forgotPassword ({ username }) {
     const { loginUri } = this
     try {
       const response = await axios.post(`${loginUri}/forgot-password`, {
-        email
+        email: username
       })
       this.control.info = response.data
       this.vue.$refs.login.currentTab = LoginTabs.LOGIN
     } catch (e) {
       this.control.error = e.response.data
     }
+  }
+
+  async logout () {
+    const { storage, lastLoginCredentialsKey } = this
+    storage.removeItem(lastLoginCredentialsKey)
+    this.control.loggedInId = undefined
   }
 }
 
