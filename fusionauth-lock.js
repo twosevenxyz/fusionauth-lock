@@ -56,7 +56,6 @@ class FusionAuth {
           this.$emit('modal-event', isShowing)
         },
         async commonSubmit (data, executor) {
-          debugger // eslint-disable-line
           this.control.error = ''
           this.control.info = ''
           this.control.isSubmitting = true
