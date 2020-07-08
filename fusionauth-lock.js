@@ -115,13 +115,13 @@ class FusionAuth {
       try {
         const lastLoginCredentialsStr = storage.getItem(lastLoginCredentialsKey)
         const lastLoginCredentials = JSON.parse(lastLoginCredentialsStr)
-        const { type, data } = lastLoginCredentials
+        const { type, provider, data } = lastLoginCredentials
         const response = await axios.get(`${loginUri}/last-login-info`, {
           params: {
             lastLoginCredentials: data
           }
         })
-        const { data: { username, provider } } = response
+        const { data: { username } } = response
         this.control.loggedInId = {
           email: username,
           type,
@@ -147,14 +147,9 @@ class FusionAuth {
         scope: this.opts.auth.scope
       })
       const { data } = response
-      const { access_token: accessToken, id_token: idToken, refresh_token: refreshToken, lastLoginCredentials: newLastLoginCredentials } = data
-      const result = {
-        token: accessToken,
-        idToken,
-        refreshToken
-      }
+      const { lastLoginCredentials: newLastLoginCredentials } = data
       storage.setItem(this.lastLoginCredentialsKey, JSON.stringify(newLastLoginCredentials))
-      this.emit('authenticated', result)
+      this.emit('authenticated', data)
       this.close()
     } catch (e) {
       if (e.response) {
@@ -165,12 +160,10 @@ class FusionAuth {
     }
   }
 
-  async socialLogin (data) {
-    const { provider, access_token: accessToken, id_token: idToken } = data
-    const { loginUri } = this
+  async socialLogin ({ provider, access_token: accessToken, id_token: idToken, lastLoginCredentials }) {
+    const { loginUri, lastLoginCredentialsKey, storage } = this
     const providerClientId = this.opts.social.providers[provider].clientId
     const finalToken = idToken || accessToken
-
     try {
       let device
       if (this.opts.auth.scope.includes('offline_access')) {
@@ -182,15 +175,14 @@ class FusionAuth {
         provider,
         token: finalToken,
         clientId: providerClientId,
-        device
+        device,
+        lastLoginCredentials
       })
-      const { data: loginData } = response
-      const { token, refreshToken } = loginData
-      const result = {
-        token,
-        refreshToken
-      }
-      this.emit('authenticated', result)
+      const { data } = response
+      const { lastLoginCredentials: newLastLoginCredentials } = data
+      storage.setItem(lastLoginCredentialsKey, JSON.stringify(newLastLoginCredentials))
+      this.emit('authenticated', data)
+      this.close()
     } catch (e) {
       throw new Error(e.response.data)
     }
@@ -200,12 +192,12 @@ class FusionAuth {
     const { storage, lastLoginCredentialsKey } = this
     const lastLoginCredentialsStr = storage.getItem(lastLoginCredentialsKey)
     const lastLoginCredentials = JSON.parse(lastLoginCredentialsStr)
-    const { type, data } = lastLoginCredentials
+    const { type, provider, data } = lastLoginCredentials
     switch (type) {
       case 'email':
         return this.login({ lastLoginCredentials: data })
       case 'social':
-        return this.socialLogin({ lastLoginCredentials: data })
+        return this.socialLogin({ provider, lastLoginCredentials: data })
     }
   }
 
