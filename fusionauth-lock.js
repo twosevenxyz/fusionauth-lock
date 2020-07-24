@@ -92,9 +92,10 @@ class FusionAuth {
             signup: data => this.commonSubmit(data, self.register.bind(self)),
             'forgot-password': data => this.commonSubmit(data, self.forgotPassword.bind(self)),
             'social-login': this.onSocialLogin,
-            'last-login-login': self.lastLoginLogin.bind(self)
+            'last-login-login': self.lastLoginLogin.bind(self),
+            'modal:closed': () => this.$emit('modal:closed'),
+            'modal:opened': () => this.$emit('modal:opened')
           }
-
         })
       }
     }).$mount(mount.querySelector('#__fusionauth__'))
@@ -132,8 +133,12 @@ class FusionAuth {
     control.initialized = true
   }
 
-  close () {
+  async close () {
+    const promise = new Promise(resolve => {
+      this.vue.$once('modal:closed', resolve)
+    })
     this.control.show = false
+    return promise
   }
 
   async login ({ username, password, lastLoginCredentials }) {
@@ -148,8 +153,8 @@ class FusionAuth {
       const { data } = response
       const { lastLoginCredentials: newLastLoginCredentials } = data
       storage.setItem(this.lastLoginCredentialsKey, JSON.stringify(newLastLoginCredentials))
+      await this.close()
       this.emit('authenticated', data)
-      this.close()
     } catch (e) {
       if (e.response) {
         throw new Error(e.response.data)
@@ -180,8 +185,8 @@ class FusionAuth {
       const { data } = response
       const { lastLoginCredentials: newLastLoginCredentials } = data
       storage.setItem(lastLoginCredentialsKey, JSON.stringify(newLastLoginCredentials))
+      await this.close()
       this.emit('authenticated', data)
-      this.close()
     } catch (e) {
       throw new Error(e.response.data)
     }
