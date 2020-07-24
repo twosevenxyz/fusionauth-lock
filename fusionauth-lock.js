@@ -46,9 +46,12 @@ class FusionAuth {
       initialized: false
     }
     this.control = control
+
     this.vue = new Vue({
       data: {
-        control
+        // We need these here so that they become Vue.observable before we spread them in render
+        control,
+        opts
       },
       methods: {
         onShowChange (isShowing) {
@@ -82,8 +85,9 @@ class FusionAuth {
       render (h) {
         return h(LoginComponent, {
           props: {
-            ...opts,
-            ...control
+            ...this.opts,
+            ...(this.opts.links || {}),
+            ...this.control
           },
           ref: 'login',
           on: {
