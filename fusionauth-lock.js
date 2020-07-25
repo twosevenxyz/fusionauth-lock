@@ -1,11 +1,7 @@
 import axios from 'axios'
-import LoginComponent from './login-component/src/components/LoginComponent.vue'
-import { tabs as LoginTabs } from './login-component/src/js/constants'
 
 import Vue from 'vue'
 import Emittery from 'emittery'
-
-Vue.component('LoginComponent', LoginComponent)
 
 // const errors = {
 //   email_verification: 'Your email has not been verified. Please verify your email before attempting to log in.',
@@ -14,7 +10,7 @@ Vue.component('LoginComponent', LoginComponent)
 // }
 
 class FusionAuth {
-  constructor (clientId, domain, opts = {}, mount = document.body) {
+  constructor (clientId, domain, LoginComponent, opts = {}, mount = document.body) {
     const self = this
 
     const { loginUri, storage = window.localStorage, keys = {} } = opts
@@ -217,7 +213,7 @@ class FusionAuth {
         password
       })
       this.control.info = response.data
-      this.vue.$refs.login.currentTab = LoginTabs.LOGIN
+      this.vue.$refs.login.currentTab = 'LOGIN'
     } catch (e) {
       this.control.error = e.response.data
     }
@@ -230,7 +226,7 @@ class FusionAuth {
         email: username
       })
       this.control.info = response.data
-      this.vue.$refs.login.currentTab = LoginTabs.LOGIN
+      this.vue.$refs.login.currentTab = 'LOGIN'
     } catch (e) {
       this.control.error = e.response.data
     }
