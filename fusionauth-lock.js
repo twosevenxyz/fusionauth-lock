@@ -88,6 +88,8 @@ class FusionAuth {
           ref: 'login',
           on: {
             'update:show': this.onShowChange,
+            'update:info': val => { this.control.info = val },
+            'update:error': val => { this.control.error = val },
             login: data => this.commonSubmit(data, self.login.bind(self)),
             signup: data => this.commonSubmit(data, self.register.bind(self)),
             'forgot-password': data => this.commonSubmit(data, self.forgotPassword.bind(self)),
