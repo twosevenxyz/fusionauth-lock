@@ -10,29 +10,19 @@ import Emittery from 'emittery'
 // }
 
 class FusionAuth {
-  constructor (clientId, domain, LoginComponent, opts = {}, mount = document.body) {
+  constructor (applicationId, domain, LoginComponent, opts = {}, mount = document.body) {
     const self = this
 
     const { loginUri, storage = window.localStorage, keys = {} } = opts
     const { prefix = 'generic-login', tokens = 'tokens', profile = 'profile', lastLogin = 'last-login' } = keys
-    this.tokensKey = `${prefix}:${tokens}`
-    this.profileKey = `${prefix}:${profile}`
-    this.lastLoginCredentialsKey = `${prefix}:${lastLogin}`
-
-    this.storage = storage
-    this.loginUri = loginUri
-
-    new Emittery().bindMethods(this)
 
     // Create the div under which the lock is going to live
     const el = document.createElement('div')
     el.id = '__fusionauth-login__'
     el.innerHTML = '<div id="__fusionauth__"></div>'
-    this.el = el
     mount.appendChild(el)
     // Regardless of what the constructor tells us, we set show to false
 
-    this.opts = opts
     const control = {
       show: false,
       error: '',
@@ -41,9 +31,8 @@ class FusionAuth {
       loggedInId: undefined,
       initialized: false
     }
-    this.control = control
 
-    this.vue = new Vue({
+    const vue = new Vue({
       data: {
         // We need these here so that they become Vue.observable before we spread them in render
         control,
@@ -100,8 +89,24 @@ class FusionAuth {
           }
         })
       }
-    }).$mount(mount.querySelector('#__fusionauth__'))
-    this.vue.$on('modal-event', function (isShowing) { this.emit('modal-event', isShowing) }.bind(this))
+    })
+
+    Object.assign(this, {
+      applicationId,
+      tokensKey: `${prefix}:${tokens}`,
+      profileKey: `${prefix}:${profile}`,
+      lastLoginCredentialsKey: `${prefix}:${lastLogin}`,
+      storage,
+      loginUri,
+      opts,
+      el,
+      control,
+      vue
+    })
+    new Emittery().bindMethods(this)
+
+    vue.$mount(mount.querySelector('#__fusionauth__'))
+    vue.$on('modal-event', isShowing => { this.emit('modal-event', isShowing) })
   }
 
   async open () {
@@ -144,9 +149,10 @@ class FusionAuth {
   }
 
   async login ({ username, password, lastLoginCredentials }) {
-    const { loginUri, storage } = this
+    const { applicationId, loginUri, storage } = this
     try {
       const response = await axios.post(`${loginUri}/login`, {
+        applicationId,
         username,
         password,
         lastLoginCredentials,
@@ -167,7 +173,7 @@ class FusionAuth {
   }
 
   async socialLogin ({ provider, access_token: accessToken, id_token: idToken, lastLoginCredentials }) {
-    const { loginUri, lastLoginCredentialsKey, storage } = this
+    const { applicationId, loginUri, lastLoginCredentialsKey, storage } = this
     const providerClientId = this.opts.social.providers[provider].clientId
     const finalToken = idToken || accessToken
     try {
@@ -178,6 +184,7 @@ class FusionAuth {
         device = this.opts.auth.device
       }
       const response = await axios.post(`${loginUri}/social-login`, {
+        applicationId,
         provider,
         token: finalToken,
         clientId: providerClientId,
@@ -222,9 +229,10 @@ class FusionAuth {
   }
 
   async forgotPassword ({ username }) {
-    const { loginUri } = this
+    const { applicationId, loginUri } = this
     try {
       const response = await axios.post(`${loginUri}/forgot-password`, {
+        applicationId,
         email: username
       })
       this.control.info = response.data
