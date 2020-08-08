@@ -149,14 +149,15 @@ class FusionAuth {
   }
 
   async login ({ username, password, lastLoginCredentials }) {
-    const { applicationId, loginUri, storage } = this
+    const { applicationId, loginUri, storage, opts: { auth: { scope, device } } } = this
     try {
       const response = await axios.post(`${loginUri}/login`, {
         applicationId,
         username,
         password,
         lastLoginCredentials,
-        scope: this.opts.auth.scope
+        device,
+        scope
       })
       const { data } = response
       const { lastLoginCredentials: newLastLoginCredentials } = data
@@ -173,16 +174,9 @@ class FusionAuth {
   }
 
   async socialLogin ({ provider, access_token: accessToken, id_token: idToken, lastLoginCredentials }) {
-    const { applicationId, loginUri, lastLoginCredentialsKey, storage } = this
-    const providerClientId = this.opts.social.providers[provider].clientId
+    const { applicationId, loginUri, lastLoginCredentialsKey, storage, opts: { auth: { device }, social: { providers: { [provider]: { clientId: providerClientId } } } } } = this
     const finalToken = idToken || accessToken
     try {
-      let device
-      if (this.opts.auth.scope.includes('offline_access')) {
-        // We need to get a refresh token
-        // To do so, we need to add the 'device' parameter
-        device = this.opts.auth.device
-      }
       const response = await axios.post(`${loginUri}/social-login`, {
         applicationId,
         provider,
