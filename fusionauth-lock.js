@@ -110,12 +110,16 @@ class FusionAuth {
   }
 
   async open () {
-    const { lastLoginCredentialsKey, loginUri, storage, control } = this
+    const { lastLoginCredentialsKey, loginUri, storage, control, vue } = this
+
+    const promise = new Promise(resolve => vue.$once('modal:opened', resolve))
 
     control.error = ''
     control.info = ''
-    control.initialized = false
+    // control.initialized = false
     control.show = true
+
+    await promise
 
     // Check lastLoginCredentials
     if (!this.control.loggedInId) {
