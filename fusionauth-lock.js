@@ -63,8 +63,11 @@ class FusionAuth {
             this.control.error = data.error
             return
           }
-          await self.socialLogin(data)
-          this.control.show = false
+          try {
+            await self.socialLogin(data)
+          } catch (e) {
+            this.control.error = e.message
+          }
         }
       },
       render (h) {
