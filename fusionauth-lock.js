@@ -215,6 +215,19 @@ class FusionAuth {
     }
   }
 
+  async refreshTokens () {
+    const { loginUri } = this
+    const { storage, lastLoginCredentialsKey } = this
+    const lastLoginCredentialsStr = storage.getItem(lastLoginCredentialsKey)
+    const lastLoginCredentialsData = JSON.parse(lastLoginCredentialsStr)
+    const { data: lastLoginCredentials } = lastLoginCredentialsData
+    const response = await axios.post(`${loginUri}/refresh-tokens`, {
+      lastLoginCredentials
+    })
+    const { data: { access_token: accessToken } } = response
+    return accessToken
+  }
+
   async register ({ username, password }) {
     const { loginUri } = this
     try {
