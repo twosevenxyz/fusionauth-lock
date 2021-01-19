@@ -41,7 +41,6 @@ class FusionAuth {
       methods: {
         onShowChange (isShowing) {
           this.control.show = isShowing
-          this.$emit('modal-event', isShowing)
         },
         async commonSubmit (data, executor) {
           this.control.error = ''
@@ -54,6 +53,7 @@ class FusionAuth {
             await executor(data)
           } catch (e) {
             this.control.error = e.message
+            this.$emit('authorization_error', new Error(e.message))
           } finally {
             this.control.isSubmitting = false
           }
@@ -67,6 +67,7 @@ class FusionAuth {
             await self.socialLogin(data)
           } catch (e) {
             this.control.error = e.message
+            this.$emit('authorization_error', new Error(e.message))
           }
         }
       },
@@ -109,10 +110,19 @@ class FusionAuth {
     new Emittery().bindMethods(this)
 
     vue.$mount(mount.querySelector('#__fusionauth__'))
-    vue.$on('modal-event', isShowing => { this.emit('modal-event', isShowing) })
+
+    const bubbleEvents = [
+      'modal:opened',
+      'modal:closed',
+      'authorization_error'
+    ]
+    bubbleEvents.forEach(evt => vue.$on(evt, (data) => this.emit(evt, data)))
   }
 
   async open () {
+    if (this.control.show === true) {
+      return
+    }
     const { lastLoginCredentialsKey, loginUri, storage, control, vue } = this
 
     const promise = new Promise(resolve => vue.$once('modal:opened', resolve))
@@ -148,11 +158,14 @@ class FusionAuth {
   }
 
   async close () {
+    if (this.control.show === false) {
+      return
+    }
     const promise = new Promise(resolve => {
       this.vue.$once('modal:closed', resolve)
     })
     this.control.show = false
-    return promise
+    await promise
   }
 
   async login ({ username, password, lastLoginCredentials }) {
