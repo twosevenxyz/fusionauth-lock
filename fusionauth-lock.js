@@ -33,10 +33,12 @@ class FusionAuth {
     }
 
     const vue = new Vue({
-      data: {
-        // We need these here so that they become Vue.observable before we spread them in render
-        control,
-        opts
+      data () {
+        return {
+          // We need these here so that they become Vue.observable before we spread them in render
+          control,
+          opts
+        }
       },
       methods: {
         onShowChange (isShowing) {
