@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import Vue from 'vue'
+import { createApp } from 'vue'
 import Emittery from 'emittery'
 
 // const errors = {
@@ -32,7 +32,7 @@ class FusionAuth {
       initialized: false
     }
 
-    const vue = new Vue({
+    const vue = createApp({
       data () {
         return {
           // We need these here so that they become Vue.observable before we spread them in render
