@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import { createApp } from 'vue'
+import { createApp, h } from 'vue'
 import Emittery from 'emittery'
 
 // const errors = {
@@ -32,6 +32,7 @@ class FusionAuth {
       initialized: false
     }
 
+    const lock = this
     const vue = createApp({
       data () {
         return {
@@ -43,7 +44,7 @@ class FusionAuth {
       methods: {
         onShowChange (isShowing) {
           this.control.show = isShowing
-          this.$emit('modal-event', isShowing)
+          lock.emit('modal-event', isShowing)
         },
         async commonSubmit (data, executor) {
           this.control.error = ''
@@ -72,7 +73,7 @@ class FusionAuth {
           }
         }
       },
-      render (h) {
+      render () {
         return h(LoginComponent, {
           props: {
             ...this.opts,
@@ -110,8 +111,7 @@ class FusionAuth {
     })
     new Emittery().bindMethods(this)
 
-    vue.$mount(mount.querySelector('#__fusionauth__'))
-    vue.$on('modal-event', isShowing => { this.emit('modal-event', isShowing) })
+    vue.mount(mount.querySelector('#__fusionauth__'))
   }
 
   async open () {
