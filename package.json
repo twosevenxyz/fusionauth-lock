@@ -1,5 +1,5 @@
 {
-  "name": "fusionauth-lock",
+  "name": "@twosevenxyz/fusionauth-lock",
   "version": "1.0.0",
   "description": "",
   "main": "fusionauth-lock.js",
