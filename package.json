@@ -2,45 +2,48 @@
   "name": "@twosevenxyz/fusionauth-lock",
   "version": "1.0.0",
   "description": "",
-  "main": "fusionauth-lock.js",
+  "type": "module",
+  "module": "fusionauth-lock.js",
+  "main": "./dist/fusionauth-lock.cjs",
   "scripts": {
-    "build": "webpack",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint --fix"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^1.2.25",
-    "@fortawesome/free-solid-svg-icons": "^5.11.2",
-    "@fortawesome/vue-fontawesome": "^0.1.7",
-    "axios": "^0.19.0",
-    "bulma": "^0.8.0",
+    "@twosevenxyz/login-component": "^1.1.0",
     "emittery": "^0.5.1",
-    "vue": "^2.6.10",
+    "vue": "^2.7.14",
     "vue-authenticate": "^1.4.1",
     "vue-axios": "^2.1.5"
   },
   "devDependencies": {
-    "@babel/cli": "^7.6.4",
-    "@babel/core": "^7.6.4",
-    "@babel/plugin-transform-runtime": "^7.6.2",
-    "@babel/preset-env": "^7.6.3",
-    "babel-loader": "^8.0.6",
-    "css-loader": "^3.2.0",
-    "eslint": "^6.5.1",
-    "eslint-config-standard": "^14.1.0",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-node": "^10.0.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
-    "eslint-plugin-vue": "^5.2.3",
-    "file-loader": "^4.2.0",
-    "node-sass": "^4.12.0",
-    "sass-loader": "^8.0.0",
-    "url-loader": "^2.2.0",
-    "vue-loader": "^15.7.1",
-    "vue-template-compiler": "^2.6.10",
-    "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.9"
-  }
+    "@babel/core": "^7.12.16",
+    "@babel/eslint-parser": "7.12",
+    "@iconify-json/mdi": "^1.1.50",
+    "@vitejs/plugin-vue2": "^2.2.0",
+    "@vue/runtime-dom": "^3.2.47",
+    "eslint": "^8.37.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^15.7.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-storybook": "^0.6.11",
+    "eslint-plugin-vue": "^9.10.0",
+    "sass": "^1.61.0",
+    "unplugin-icons": "^0.16.1",
+    "unplugin-vue-components": "^0.24.1",
+    "vue-template-compiler": "^2.7.14",
+    "vue-template-es2015-compiler": "^1.9.1"
+  },
+  "exports": {
+    ".": "./fusionauth-lock.js",
+    "./fusionauth-lock.js": "./fusionauth-lock.js"
+  },
+  "files": [
+    "dist/",
+    "./fusionauth-lock.js"
+  ]
 }
