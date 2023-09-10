@@ -4,20 +4,12 @@ import { fileURLToPath } from 'url'
 import { defineConfig } from 'vite'
 import vue2 from '@vitejs/plugin-vue2'
 
-import Icons from 'unplugin-icons/vite'
-import IconsResolver from 'unplugin-icons/resolver'
-import Components from 'unplugin-vue-components/vite'
-
-export function sharedConfig() {
+export function sharedConfig () {
   return defineConfig({
     plugins: [
       vue2({
         jsx: true
-      }),
-      Components({
-        resolvers: IconsResolver()
-      }),
-      Icons({ compiler: 'vue2' })
+      })
     ],
     resolve: {
       alias: {

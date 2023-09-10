@@ -13,28 +13,22 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@twosevenxyz/login-component": "^1.1.0",
-    "emittery": "^0.5.1",
-    "vue": "^2.7.14",
-    "vue-authenticate": "^1.4.1",
-    "vue-axios": "^2.1.5"
+    "emittery": "^1.0.0",
+    "vue": "^2.7.14"
+  },
+  "peerDependencies": {
+    "@twosevenxyz/login-component": "^1.1.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.16",
-    "@babel/eslint-parser": "7.12",
-    "@iconify-json/mdi": "^1.1.50",
     "@vitejs/plugin-vue2": "^2.2.0",
     "@vue/runtime-dom": "^3.2.47",
-    "eslint": "^8.37.0",
-    "eslint-config-standard": "^17.0.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-n": "^15.7.0",
+    "eslint": "^8.49.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-n": "^16.0.2",
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-storybook": "^0.6.11",
-    "eslint-plugin-vue": "^9.10.0",
-    "sass": "^1.61.0",
-    "unplugin-icons": "^0.16.1",
-    "unplugin-vue-components": "^0.24.1",
+    "eslint-plugin-vue": "^9.17.0",
     "vue-template-compiler": "^2.7.14",
     "vue-template-es2015-compiler": "^1.9.1"
   },
