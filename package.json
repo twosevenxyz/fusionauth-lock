@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "description": "",
   "type": "module",
-  "module": "fusionauth-lock.js",
+  "module": "./dist/fusionauth-lock.js",
   "main": "./dist/fusionauth-lock.cjs",
   "scripts": {
     "dev": "vite",
@@ -39,7 +39,7 @@
     "vue-template-es2015-compiler": "^1.9.1"
   },
   "exports": {
-    ".": "./fusionauth-lock.js",
+    ".": "./dist/fusionauth-lock.js",
     "./fusionauth-lock.js": "./fusionauth-lock.js"
   },
   "files": [
