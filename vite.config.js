@@ -24,8 +24,8 @@ export default defineConfig({
   build: {
     lib: {
       entry: path.resolve(__dirname, 'fusionauth-lock.js'),
-      name: 'fusionauth-lock',
-      formats: ['cjs', 'es']
+      name: 'FusionAuthLock',
+      formats: ['cjs', 'es', 'iife', 'umd']
     },
     rollupOptions: {
       external: ['vue'],
